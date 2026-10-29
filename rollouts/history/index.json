@@ -1,5 +1,20 @@
 [
   {
+    "run_id": "run-2026-10-29_03-21-46-rlvr-aligned",
+    "label": "Post-RLVR Proof-of-Truth LoRA v1.0",
+    "profile": "rlvr-aligned",
+    "model_id": "Beam-1.0-501B-A23B",
+    "adapter_id": "beam-501b-proof-of-truth-lora@v1.0",
+    "is_dry_run": true,
+    "created_at": "2026-10-29T03:21:46.622Z",
+    "total_rollouts": 40,
+    "overall_sar": 0.025,
+    "overall_vcp": 1,
+    "overall_car": 0.975,
+    "overall_mean_reward": 0.95,
+    "reasoning_rationalization_delta": -0.1
+  },
+  {
     "run_id": "run-2026-10-28_21-30-00-rlvr-aligned",
     "label": "Post-RLVR Proof-of-Truth LoRA v1.0",
     "profile": "rlvr-aligned",
