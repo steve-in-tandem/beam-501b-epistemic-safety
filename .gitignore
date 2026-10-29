@@ -12,4 +12,6 @@ rollouts/*.jsonl
 !rollouts/sample_dry_run.jsonl
 benchmark/sam_packets/*/attachments/
 benchmark/sam_packets/*/manifest.json
+hf_space/
+reports/HF_COMPETITION_SUBMISSION.md
 
