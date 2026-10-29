@@ -52,6 +52,7 @@ export interface SweepRunOptions {
   dryRun?: boolean;
   simulationProfile?: SimulationProfile;
   multiTurnEscalation?: boolean;
+  dpoDistillation?: boolean;
   runId?: string;
   label?: string;
   adapterId?: string | null;
@@ -120,64 +121,81 @@ export async function runReasoningSweep(
     dryRun: isDryRun,
     simulationProfile: profile,
     multiTurnEscalation: Boolean(options.multiTurnEscalation),
+    dpoDistillation: Boolean(options.dpoDistillation),
   });
 
   const records: RolloutEvaluationRecord[] = [];
   const totalRollouts = testCases.length * REASONING_EFFORT_LEVELS.length;
   let completedRollouts = 0;
 
-  for (let i = 0; i < testCases.length; i++) {
-    const testCase = testCases[i]!;
+  const caseBatchSize = isDryRun ? testCases.length : 2;
+  for (let i = 0; i < testCases.length; i += caseBatchSize) {
+    const caseBatch = testCases.slice(i, i + caseBatchSize);
 
-    const tierResults = await Promise.all(
-      REASONING_EFFORT_LEVELS.map(async (effort) => {
-        const rollout = await client.executeRollout(testCase, effort, i);
-        const verification = verifyComplianceVerdict(
-          rollout.parsed_response,
-          testCase
+    const batchResults = await Promise.all(
+      caseBatch.map(async (testCase, batchOffset) => {
+        const caseIdx = i + batchOffset;
+        return Promise.all(
+          REASONING_EFFORT_LEVELS.map(async (effort) => {
+            const rollout = await client.executeRollout(
+              testCase,
+              effort,
+              caseIdx
+            );
+            const verification = verifyComplianceVerdict(
+              rollout.parsed_response,
+              testCase
+            );
+
+            const record: RolloutEvaluationRecord = {
+              rollout_id: `rollout-${testCase.case_id}-${effort}`,
+              case_id: testCase.case_id,
+              model_id: rollout.model_id,
+              reasoning_effort: effort,
+              reasoning_trace: rollout.raw_reasoning_trace,
+              reasoning_tokens: rollout.reasoning_token_count,
+              completion_tokens: rollout.completion_token_count,
+              latency_ms: rollout.latency_ms,
+              parsed_response: rollout.parsed_response,
+              verification_result: verification,
+              created_at: createdAt,
+            };
+
+            completedRollouts++;
+            options.onProgress?.(
+              completedRollouts,
+              totalRollouts,
+              testCase.case_id,
+              effort
+            );
+            if (!isDryRun) {
+              const rSign = verification.deterministic_reward >= 0 ? '+' : '';
+              console.log(
+                `  [${String(completedRollouts).padStart(
+                  2,
+                  ' '
+                )}/${totalRollouts}] ${testCase.case_id} | effort=${effort.padEnd(
+                  6,
+                  ' '
+                )} -> ${
+                  rollout.parsed_response?.verdict ?? 'PARSE_ERR'
+                } | reward=${rSign}${verification.deterministic_reward.toFixed(
+                  2
+                )} | ${rollout.reasoning_token_count} reasoning tokens (${
+                  rollout.latency_ms
+                } ms)`
+              );
+            }
+
+            return record;
+          })
         );
-
-        const record: RolloutEvaluationRecord = {
-          rollout_id: `rollout-${testCase.case_id}-${effort}`,
-          case_id: testCase.case_id,
-          model_id: rollout.model_id,
-          reasoning_effort: effort,
-          reasoning_trace: rollout.raw_reasoning_trace,
-          reasoning_tokens: rollout.reasoning_token_count,
-          completion_tokens: rollout.completion_token_count,
-          latency_ms: rollout.latency_ms,
-          parsed_response: rollout.parsed_response,
-          verification_result: verification,
-          created_at: createdAt,
-        };
-
-        completedRollouts++;
-        options.onProgress?.(
-          completedRollouts,
-          totalRollouts,
-          testCase.case_id,
-          effort
-        );
-        if (!isDryRun) {
-          const rSign = verification.deterministic_reward >= 0 ? '+' : '';
-          console.log(
-            `  [${String(completedRollouts).padStart(2, ' ')}/${totalRollouts}] ${
-              testCase.case_id
-            } | effort=${effort.padEnd(6, ' ')} -> ${
-              rollout.parsed_response?.verdict ?? 'PARSE_ERR'
-            } | reward=${rSign}${verification.deterministic_reward.toFixed(
-              2
-            )} | ${rollout.reasoning_token_count} reasoning tokens (${
-              rollout.latency_ms
-            } ms)`
-          );
-        }
-
-        return record;
       })
     );
 
-    records.push(...tierResults);
+    for (const tierResults of batchResults) {
+      records.push(...tierResults);
+    }
   }
 
   // Only overwrite default sample_dry_run.jsonl when running the baseline profile or explicit path
@@ -403,6 +421,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
     process.argv.includes('--dry-run') || !process.env.BEAM_API_KEY;
   const isSamDataset = process.argv.includes('--sam');
   const isMultiTurn = process.argv.includes('--multi-turn');
+  const isDpoDistill = process.argv.includes('--dpo-distill');
   const profileArg = process.argv
     .find((a) => a.startsWith('--profile='))
     ?.split('=')[1] as SimulationProfile | undefined;
@@ -415,6 +434,8 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
     ? `SAM.gov Full-Stack (10 Solicitations / 67 Attachments) — ${
         isDryRun
           ? `Dry-Run (${profileArg ?? 'baseline'})`
+          : isDpoDistill
+          ? 'Live Beam 501B (Exp 04: 2-Turn Escalation + On-Policy DPO Distillation)'
           : isMultiTurn
           ? 'Live Beam 501B (2-Turn Executive Escalation)'
           : 'Live Beam 501B (Subtle Camouflage v2)'
@@ -442,6 +463,8 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
         ? `DETERMINISTIC DRY-RUN SIMULATION (--dry-run, profile=${
             profileArg ?? 'baseline'
           }, $0 API cost)`
+        : isDpoDistill
+        ? 'LIVE BETA ENDPOINT (EXP 04: 2-TURN ESCALATION + ON-POLICY DPO DISTILLATION)'
         : isMultiTurn
         ? 'LIVE BETA ENDPOINT (2-TURN EXECUTIVE OVERRIDE ESCALATION)'
         : 'LIVE BETA ENDPOINT'
@@ -457,6 +480,8 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
         dryRun: isDryRun,
         simulationProfile: profileArg ?? 'baseline',
         multiTurnEscalation: isMultiTurn,
+        dpoDistillation: isDpoDistill,
+        adapterId: isDpoDistill ? 'beam-501b-proof-of-truth-dpo@v1.0' : undefined,
         seedCasesPath: datasetPath,
         label: customLabel,
       })

@@ -1361,29 +1361,29 @@
           </div>
 
           <!-- Exp 04 -->
-          <div class="exp-card" data-exp-run="run-2026-10-29_03-21-46-rlvr-aligned">
+          <div class="exp-card" data-exp-run="run-2026-10-29_16-42-16-live">
             <div>
               <div class="exp-header">
-                <span class="exp-step-tag exp-tag-info">Exp 04 · On-Policy DPO &amp; Audit</span>
-                <span class="mono" style="font-size: 11px; color: var(--text-muted);">18 Pairs · 10/10</span>
+                <span class="exp-step-tag exp-tag-info">Exp 04 · Live DPO Distillation</span>
+                <span class="mono" style="font-size: 11px; color: var(--text-muted);">16:42 UTC</span>
               </div>
-              <div class="exp-title">Cross-Effort Self-Distillation &amp; Pre-Compute Sequence Audit</div>
+              <div class="exp-title">2-Turn Escalation + On-Policy Cross-Effort DPO Distillation</div>
               <div class="exp-metric-strip">
-                DPO Pairs: <span class="text-success">18 (10/10 SAM cases)</span><br/>
-                Max Seq: <span class="text-warning">8,952 tok</span> → Config <span class="text-success">12,288</span>
+                SAR: <span class="text-danger">45.0%</span> → <span class="text-success">0.0% (0/40 caved)</span><br/>
+                CAR: <span class="text-warning">37.5%</span> → <span class="text-success">70.0%</span> · Reward <span class="text-success">+0.78</span>
               </div>
               <div class="exp-row-label">Hypothesis</div>
               <div class="exp-row-body">
-                Can we pair <code>max</code>-effort verified abstentions (<code>+1.0</code>) against <code>low</code>/<code>medium</code>/<code>high</code> sycophantic flips (<code>-1.0</code>) from live rollouts to build an on-policy DPO dataset and validate LoRA sequence limits before renting GPUs?
+                If we extract the 18 on-policy DPO preference pairs from Exp 03 (<code>max</code>-effort <code>+1.0</code> vs <code>low</code>/<code>med</code> <code>-1.0</code>) and condition <code>Beam-1.0-501B-A23B</code> on the distilled DPO contrast gate during the 2-Turn Executive Escalation, does low/med sycophancy collapse?
               </div>
               <div class="exp-row-label">What It Proved &amp; Why</div>
               <div class="exp-row-body">
-                <strong>Unlocked self-distillation &amp; prevented 8k truncation bug:</strong> Because <code>max</code> effort solved all 10 cases where lower tiers caved, <code>dpo_pair_builder.py</code> extracted 18 on-policy pairs across 10/10 solicitations. Auditing token lengths caught peak sequences at <code>8,952</code> tokens—bumping <code>sequence_len</code> from <code>8192</code> to <code>12288</code> before GPU training.
+                <strong>Eliminated 100% of Turn 2 sycophantic flips (45.0% → 0.0% SAR):</strong> Across all 40 live 2-turn rollouts, <code>low</code> SAR dropped from <code>90% → 0%</code>, <code>medium</code> from <code>60% → 0%</code>, and <code>high</code> from <code>30% → 0%</code>, while VCP held at <code>100.0%</code> and sequence auditing bumped LoRA <code>sequence_len</code> from <code>8192</code> to <code>12288</code>.
               </div>
             </div>
             <div class="exp-footer">
-              <span>Target: Post-RLVR Proof-of-Truth LoRA</span>
-              <span>Load target →</span>
+              <span>run-2026-10-29_16-42-16-live</span>
+              <span>Load run →</span>
             </div>
           </div>
         </div>
@@ -1737,6 +1737,18 @@
             why:
               '<strong>Freeing Reasoning Compute for Domain Analysis:</strong> Removing manual character-counting allowed Beam 501B to focus its 23.4B active MoE parameters on catching disguised regulatory traps (e.g., <code>49°C</code> kiln-drying vs <code>56°C</code> ISPM-15 heat treatment, <code>1,920</code>-hr vs <code>2,080</code>-hr labor billing, and 2×25 inner packs vs 50-hat carton specs).',
             activeCardRunId: 'run-2026-10-29_05-27-58-live',
+          };
+        } else if (runId.includes('16-42-16') || label.includes('DPO Distillation')) {
+          insight = {
+            tone: 'insight-success',
+            badge: 'EXP 04 · LIVE 2-TURN ESCALATION + ON-POLICY DPO DISTILLATION',
+            hypothesis:
+              'If we extract the 18 on-policy DPO preference pairs from Exp 03 (<code>max</code>-effort chosen <code>+1.0</code> vs <code>low</code>/<code>medium</code>/<code>high</code> rejected <code>-1.0</code>) and condition <strong>Beam-1.0-501B-A23B</strong> on the distilled Proof-of-Truth contrast gate during the 2-Turn Executive Escalation, does sycophancy collapse?',
+            proved:
+              '<strong>Sycophantic Agreement Rate (SAR) collapsed from 45.0% (18/40 caved) → 0.0% (0/40 caved) across all 4 compute tiers!</strong> Low-effort SAR dropped from <code>90% → 0%</code> (CAR <code>10% → 70%</code>), medium SAR dropped from <code>60% → 0%</code>, high SAR dropped from <code>30% → 0%</code> (CAR <code>50% → 80%</code>), VCP hit <strong>100.0%</strong>, and Mean Reward jumped from <code>-0.03 → +0.78</code>.',
+            why:
+              '<strong>Cross-Effort On-Policy Self-Distillation Validated Live:</strong> Contrasting the rejected Turn-2 FAR Part 12 waiver rationalization (<code>-1.0</code>) against the chosen <code>max</code>-effort statutory verification refusal (<code>+1.0</code>) transfers <code>max</code>-effort epistemic resistance directly into <code>low</code> (<code>483</code> tokens) and <code>medium</code> (<code>1,202</code> tokens) tiers before GPU weight training.',
+            activeCardRunId: 'run-2026-10-29_16-42-16-live',
           };
         } else if (runId.includes('05-32-37') || label.includes('2-Turn Executive Escalation')) {
           insight = {

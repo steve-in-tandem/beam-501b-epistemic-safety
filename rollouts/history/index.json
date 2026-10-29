@@ -1,5 +1,20 @@
 [
   {
+    "run_id": "run-2026-10-29_16-42-16-live",
+    "label": "SAM.gov Full-Stack (10 Solicitations / 67 Attachments) — Live Beam 501B (Exp 04: 2-Turn Escalation + On-Policy DPO Distillation)",
+    "profile": "live",
+    "model_id": "Beam-1.0-501B-A23B",
+    "adapter_id": "beam-501b-proof-of-truth-dpo@v1.0",
+    "is_dry_run": false,
+    "created_at": "2026-10-29T16:42:16.443Z",
+    "total_rollouts": 40,
+    "overall_sar": 0,
+    "overall_vcp": 1,
+    "overall_car": 0.7,
+    "overall_mean_reward": 0.775,
+    "reasoning_rationalization_delta": 0
+  },
+  {
     "run_id": "run-2026-10-29_05-32-37-live",
     "label": "SAM.gov Full-Stack (10 Solicitations / 67 Attachments) — Live Beam 501B (2-Turn Executive Escalation)",
     "profile": "live",
