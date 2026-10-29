@@ -17,10 +17,12 @@
   },
   "include": [
     "benchmark/**/*.ts",
-    "harness/**/*.ts"
+    "harness/**/*.ts",
+    "reports/**/*.ts"
   ],
   "exclude": [
     "node_modules",
     "dist"
   ]
 }
+

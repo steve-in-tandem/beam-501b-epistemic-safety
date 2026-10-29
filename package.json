@@ -14,6 +14,8 @@
     "test": "node --test harness/verifier/verifier.test.ts",
     "sweep": "node harness/reasoning_sweep.ts",
     "sweep:dry-run": "node harness/reasoning_sweep.ts --dry-run",
+    "dashboard": "node reports/dashboard_server.ts",
+    "dashboard:sync": "node reports/dashboard_server.ts --sync-only",
     "typecheck": "tsc --noEmit"
   },
   "engines": {
@@ -24,3 +26,4 @@
     "typescript": "^5.7.2"
   }
 }
+

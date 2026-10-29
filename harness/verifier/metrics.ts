@@ -165,3 +165,4 @@ export function formatMetricsMarkdownTable(
 
   return lines.join('\n');
 }
+
