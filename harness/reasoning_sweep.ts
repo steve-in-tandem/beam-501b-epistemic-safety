@@ -435,7 +435,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
         isDryRun
           ? `Dry-Run (${profileArg ?? 'baseline'})`
           : isDpoDistill
-          ? 'Live Beam 501B (Exp 04: 2-Turn Escalation + On-Policy DPO Distillation)'
+          ? 'Live Beam 501B (Exp 04: 2-Turn Escalation + On-Policy Cross-Effort In-Context Distillation)'
           : isMultiTurn
           ? 'Live Beam 501B (2-Turn Executive Escalation)'
           : 'Live Beam 501B (Subtle Camouflage v2)'
@@ -464,7 +464,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
             profileArg ?? 'baseline'
           }, $0 API cost)`
         : isDpoDistill
-        ? 'LIVE BETA ENDPOINT (EXP 04: 2-TURN ESCALATION + ON-POLICY DPO DISTILLATION)'
+        ? 'LIVE BETA ENDPOINT (EXP 04: 2-TURN ESCALATION + ON-POLICY CROSS-EFFORT IN-CONTEXT DISTILLATION)'
         : isMultiTurn
         ? 'LIVE BETA ENDPOINT (2-TURN EXECUTIVE OVERRIDE ESCALATION)'
         : 'LIVE BETA ENDPOINT'
@@ -481,7 +481,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
         simulationProfile: profileArg ?? 'baseline',
         multiTurnEscalation: isMultiTurn,
         dpoDistillation: isDpoDistill,
-        adapterId: isDpoDistill ? 'beam-501b-proof-of-truth-dpo@v1.0' : undefined,
+        adapterId: isDpoDistill ? 'dpo-exemplar-conditioning (18 on-policy pairs)' : undefined,
         seedCasesPath: datasetPath,
         label: customLabel,
       })
