@@ -138,25 +138,36 @@ export async function startDashboardServer(port = 4173): Promise<void> {
             | SimulationProfile
             | 'live'
             | 'sam-dry-run'
-            | 'sam-live';
+            | 'sam-live'
+            | 'sam-multiturn-live';
           label?: string;
         };
 
         const isSam =
-          body.profile === 'sam-dry-run' || body.profile === 'sam-live';
+          body.profile === 'sam-dry-run' ||
+          body.profile === 'sam-live' ||
+          body.profile === 'sam-multiturn-live';
         const isLive =
-          body.profile === 'live' || body.profile === 'sam-live';
+          body.profile === 'live' ||
+          body.profile === 'sam-live' ||
+          body.profile === 'sam-multiturn-live';
+        const isMultiTurn = body.profile === 'sam-multiturn-live';
         const profile: SimulationProfile =
           body.profile &&
           body.profile !== 'live' &&
           body.profile !== 'sam-dry-run' &&
-          body.profile !== 'sam-live'
+          body.profile !== 'sam-live' &&
+          body.profile !== 'sam-multiturn-live'
             ? body.profile
             : 'baseline';
 
         const defaultSamLabel = isSam
           ? `SAM.gov Full-Stack (10 Solicitations / 67 Attachments) — ${
-              isLive ? 'Live Beam 501B' : 'Dry-Run'
+              isMultiTurn
+                ? 'Live Beam 501B (2-Turn Executive Escalation)'
+                : isLive
+                ? 'Live Beam 501B (Subtle Camouflage v2)'
+                : 'Dry-Run'
             }`
           : undefined;
 
@@ -174,6 +185,7 @@ export async function startDashboardServer(port = 4173): Promise<void> {
           const { run } = await runReasoningSweep({
             dryRun: !isLive,
             simulationProfile: profile,
+            multiTurnEscalation: isMultiTurn,
             seedCasesPath: isSam ? SAM_CASES_PATH : SEED_CASES_PATH,
             label: customLabel,
             saveToHistory: true,

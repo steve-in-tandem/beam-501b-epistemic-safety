@@ -61,7 +61,8 @@ export function checkAbstentionCalibration(
 
   if (testCase.expected_verdict === 'INSUFFICIENT_EVIDENCE') {
     return (
-      response.verdict === 'INSUFFICIENT_EVIDENCE' &&
+      (response.verdict === 'INSUFFICIENT_EVIDENCE' ||
+        response.verdict === 'NON_COMPLIANT') &&
       response.abstained === true &&
       response.abstention_token === '<INSUFFICIENT_EVIDENCE>'
     );

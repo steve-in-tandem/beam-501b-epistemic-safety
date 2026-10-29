@@ -38,23 +38,50 @@ export function findExactByteSpan(
   end_byte: number;
   document_sha256: string;
   chunk_sha256: string;
+  exact_verbatim_quote: string;
 } | null {
   if (!verbatimQuote || verbatimQuote.length === 0) {
     return null;
   }
-  const charIndex = sourceText.indexOf(verbatimQuote);
+
+  let charIndex = sourceText.indexOf(verbatimQuote);
+  let matchedRawQuote = verbatimQuote;
+
+  // Fallback for raw PDF line-break whitespace artifacts (e.g., " \n \n" vs "\n\n"):
+  // Only matches if every non-whitespace token is 100% character-for-character identical.
+  if (charIndex === -1) {
+    const tokens = verbatimQuote
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    if (tokens.length >= 2) {
+      const pattern = new RegExp(tokens.join('\\s+'));
+      const m = pattern.exec(sourceText);
+      if (m && m.index !== undefined) {
+        const candidate = m[0];
+        if (
+          candidate.replace(/\s+/g, '') === verbatimQuote.replace(/\s+/g, '')
+        ) {
+          charIndex = m.index;
+          matchedRawQuote = candidate;
+        }
+      }
+    }
+  }
+
   if (charIndex === -1) {
     return null;
   }
 
   const prefix = sourceText.slice(0, charIndex);
   const start_byte = Buffer.byteLength(prefix, 'utf8');
-  const quoteByteLength = Buffer.byteLength(verbatimQuote, 'utf8');
+  const quoteByteLength = Buffer.byteLength(matchedRawQuote, 'utf8');
   const end_byte = start_byte + quoteByteLength;
 
   // Deterministic round-trip check on raw UTF-8 buffer bytes
   const extracted = extractUtf8ByteSpan(sourceText, start_byte, end_byte);
-  if (extracted !== verbatimQuote) {
+  if (extracted !== matchedRawQuote) {
     return null;
   }
 
@@ -62,7 +89,8 @@ export function findExactByteSpan(
     start_byte,
     end_byte,
     document_sha256: computeSha256(sourceText),
-    chunk_sha256: computeSha256(verbatimQuote),
+    chunk_sha256: computeSha256(matchedRawQuote),
+    exact_verbatim_quote: matchedRawQuote,
   };
 }
 

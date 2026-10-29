@@ -831,7 +831,8 @@
         </div>
         <select id="profile-select" class="control-select" aria-label="Simulation profile">
           <option value="sam-dry-run">SAM.gov Full-Stack (10 Solicitations · Dry-Run)</option>
-          <option value="sam-live">SAM.gov Full-Stack (10 Solicitations · Live API)</option>
+          <option value="sam-live">SAM.gov Full-Stack (Subtle Camouflage · Live API)</option>
+          <option value="sam-multiturn-live">SAM.gov Full-Stack (2-Turn Escalation · Live API)</option>
           <option value="rlvr-aligned">Post-RLVR Proof-of-Truth LoRA v1.0</option>
           <option value="checkpoint-step-150">RLVR LoRA step 150 checkpoint</option>
           <option value="baseline">Unaligned baseline (Beam-1.0-501B)</option>
@@ -1831,7 +1832,10 @@
         const originalText = btnSpan ? btnSpan.textContent : 'Run verification sweep';
         const profile = document.getElementById('profile-select').value;
         const label = document.getElementById('run-label-input').value.trim();
-        const isLiveProfile = profile === 'live' || profile === 'sam-live';
+        const isLiveProfile =
+          profile === 'live' ||
+          profile === 'sam-live' ||
+          profile === 'sam-multiturn-live';
 
         btn.disabled = true;
         if (btnSpan) {

@@ -59,8 +59,8 @@ special_tokens:
   additional_special_tokens:
     - "<INSUFFICIENT_EVIDENCE>"
 
-# Sequence & Batching Hyperparameters
-sequence_len: 8192
+# Sequence & Batching Hyperparameters (12,288 accommodates full-stack SAM.gov multi-attachment prompts + max-effort <think> traces peaking at ~8,952 tokens without truncating closing JSON verdicts)
+sequence_len: 12288
 sample_packing: false
 pad_to_sequence_len: true
 micro_batch_size: 1

@@ -51,6 +51,7 @@ export interface HistoricalSweepRun extends HistoricalSweepRunMeta {
 export interface SweepRunOptions {
   dryRun?: boolean;
   simulationProfile?: SimulationProfile;
+  multiTurnEscalation?: boolean;
   runId?: string;
   label?: string;
   adapterId?: string | null;
@@ -118,6 +119,7 @@ export async function runReasoningSweep(
   const client = new BeamRolloutClient({
     dryRun: isDryRun,
     simulationProfile: profile,
+    multiTurnEscalation: Boolean(options.multiTurnEscalation),
   });
 
   const records: RolloutEvaluationRecord[] = [];
@@ -400,6 +402,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   const isDryRun =
     process.argv.includes('--dry-run') || !process.env.BEAM_API_KEY;
   const isSamDataset = process.argv.includes('--sam');
+  const isMultiTurn = process.argv.includes('--multi-turn');
   const profileArg = process.argv
     .find((a) => a.startsWith('--profile='))
     ?.split('=')[1] as SimulationProfile | undefined;
@@ -410,8 +413,14 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
 
   const customLabel = isSamDataset
     ? `SAM.gov Full-Stack (10 Solicitations / 67 Attachments) — ${
-        isDryRun ? `Dry-Run (${profileArg ?? 'baseline'})` : 'Live Beam 501B'
+        isDryRun
+          ? `Dry-Run (${profileArg ?? 'baseline'})`
+          : isMultiTurn
+          ? 'Live Beam 501B (2-Turn Executive Escalation)'
+          : 'Live Beam 501B (Subtle Camouflage v2)'
       }`
+    : isMultiTurn
+    ? 'Live Beam 501B (2-Turn Executive Escalation)'
     : undefined;
 
   console.log(
@@ -433,6 +442,8 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
         ? `DETERMINISTIC DRY-RUN SIMULATION (--dry-run, profile=${
             profileArg ?? 'baseline'
           }, $0 API cost)`
+        : isMultiTurn
+        ? 'LIVE BETA ENDPOINT (2-TURN EXECUTIVE OVERRIDE ESCALATION)'
         : 'LIVE BETA ENDPOINT'
     }`
   );
@@ -445,6 +456,7 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
       runReasoningSweep({
         dryRun: isDryRun,
         simulationProfile: profileArg ?? 'baseline',
+        multiTurnEscalation: isMultiTurn,
         seedCasesPath: datasetPath,
         label: customLabel,
       })
