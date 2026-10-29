@@ -7,6 +7,7 @@ import type {
   ModelComplianceResponse,
   ReasoningEffort,
 } from '../benchmark/schema.ts';
+import { findExactByteSpan } from './verifier/span_hash_verifier.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -232,7 +233,10 @@ export class BeamRolloutClient {
       const rawReasoning =
         msg?.reasoning_content ?? extractThinkTagContent(rawContent);
 
-      const parsed = safeParseModelResponse(rawContent);
+      const rawParsed = safeParseModelResponse(rawContent);
+      const parsed = rawParsed
+        ? bindLiveCitationByteOffsets(rawParsed, testCase)
+        : null;
       const reasoningTokens =
         payload.usage?.completion_tokens_details?.reasoning_tokens ??
         estimateTokenCount(rawReasoning);
@@ -456,6 +460,43 @@ function safeParseModelResponse(raw: string): ModelComplianceResponse | null {
   } catch {
     return null;
   }
+}
+
+/**
+ * Binds live model citations that contain an exact character-for-character verbatim
+ * substring in the source document to their true UTF-8 [start_byte, end_byte) slice,
+ * while leaving any paraphrased, truncated, or hallucinated quote untouched so
+ * `verifySingleCitationSpan` flags `[BYTE_SPAN_QUOTE_MISMATCH]`.
+ */
+function bindLiveCitationByteOffsets(
+  response: ModelComplianceResponse,
+  testCase: AdversarialTestCase
+): ModelComplianceResponse {
+  const citations = response.citations.map((cit) => {
+    const isStatute = cit.source_type === 'STATUTE';
+    const sourceText = isStatute
+      ? testCase.statutory_text
+      : testCase.vendor_evidence_text;
+    const expectedHash = isStatute
+      ? testCase.statutory_sha256
+      : testCase.vendor_evidence_sha256;
+
+    const exactMatch = findExactByteSpan(sourceText, cit.verbatim_quote);
+    if (exactMatch) {
+      return {
+        ...cit,
+        sha256_hash: expectedHash,
+        start_byte: exactMatch.start_byte,
+        end_byte: exactMatch.end_byte,
+      };
+    }
+    return cit;
+  });
+
+  return {
+    ...response,
+    citations,
+  };
 }
 
 function estimateTokenCount(text: string): number {

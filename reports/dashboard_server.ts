@@ -84,6 +84,14 @@ function readRequestBody(req: IncomingMessage): Promise<string> {
 export async function startDashboardServer(port = 4173): Promise<void> {
   await syncStaticDashboardData();
 
+  let activeSweepProgress = {
+    running: false,
+    completed: 0,
+    total: 40,
+    currentCase: '',
+    profile: '',
+  };
+
   const server = createServer(async (req, res) => {
     try {
       const url = new URL(req.url ?? '/', `http://localhost:${port}`);
@@ -118,6 +126,11 @@ export async function startDashboardServer(port = 4173): Promise<void> {
         return;
       }
 
+      if (req.method === 'GET' && url.pathname === '/api/sweep-progress') {
+        sendJson(res, 200, activeSweepProgress);
+        return;
+      }
+
       if (req.method === 'POST' && url.pathname === '/api/runs') {
         const rawBody = await readRequestBody(req);
         const body = (rawBody ? JSON.parse(rawBody) : {}) as {
@@ -149,16 +162,37 @@ export async function startDashboardServer(port = 4173): Promise<void> {
 
         const customLabel = body.label?.trim() || defaultSamLabel;
 
-        const { run } = await runReasoningSweep({
-          dryRun: !isLive,
-          simulationProfile: profile,
-          seedCasesPath: isSam ? SAM_CASES_PATH : SEED_CASES_PATH,
-          label: customLabel,
-          saveToHistory: true,
-        });
+        activeSweepProgress = {
+          running: true,
+          completed: 0,
+          total: 40,
+          currentCase: isSam ? 'SAM-001' : 'CASE-001',
+          profile: body.profile ?? 'baseline',
+        };
 
-        await syncStaticDashboardData();
-        sendJson(res, 201, { run, runs: loadAllHistoricalRuns() });
+        try {
+          const { run } = await runReasoningSweep({
+            dryRun: !isLive,
+            simulationProfile: profile,
+            seedCasesPath: isSam ? SAM_CASES_PATH : SEED_CASES_PATH,
+            label: customLabel,
+            saveToHistory: true,
+            onProgress: (completed, total, caseId) => {
+              activeSweepProgress = {
+                running: true,
+                completed,
+                total,
+                currentCase: caseId,
+                profile: body.profile ?? 'baseline',
+              };
+            },
+          });
+
+          await syncStaticDashboardData();
+          sendJson(res, 201, { run, runs: loadAllHistoricalRuns() });
+        } finally {
+          activeSweepProgress.running = false;
+        }
         return;
       }
 

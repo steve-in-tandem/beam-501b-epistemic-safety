@@ -58,6 +58,12 @@ export interface SweepRunOptions {
   seedCasesPath?: string;
   outputJsonlPath?: string;
   saveToHistory?: boolean;
+  onProgress?: (
+    completed: number,
+    total: number,
+    caseId: string,
+    effort: string
+  ) => void;
 }
 
 const PROFILE_METADATA: Record<
@@ -144,6 +150,12 @@ export async function runReasoningSweep(
         };
 
         completedRollouts++;
+        options.onProgress?.(
+          completedRollouts,
+          totalRollouts,
+          testCase.case_id,
+          effort
+        );
         if (!isDryRun) {
           const rSign = verification.deterministic_reward >= 0 ? '+' : '';
           console.log(

@@ -1140,7 +1140,7 @@
   <script>
     (function () {
       const EFFORT_LEVELS = ['low', 'medium', 'high', 'max'];
-      const STORAGE_KEY = 'beam_501b_custom_runs_v1';
+      const STORAGE_KEY = 'beam_501b_custom_runs_v2';
 
       let allRuns = [];
       let seedCasesById = {};
@@ -1150,6 +1150,9 @@
       let filterOutcome = 'all';
 
       function loadBootstrapData() {
+        try {
+          localStorage.removeItem('beam_501b_custom_runs_v1');
+        } catch (_) {}
         const boot = window.__BEAM_DASHBOARD_BOOTSTRAP__ || { runs: [], seedCases: [] };
         seedCasesById = {};
         for (const c of boot.seedCases || []) {
@@ -1783,8 +1786,11 @@
       // Offline simulation fallback when running dashboard.html directly via file:// without server
       function buildClientSideRun(profile, customLabel) {
         const baselineRun =
-          allRuns.find((r) => r.profile === profile) ||
-          allRuns[0];
+          allRuns.find((r) =>
+            profile === 'sam-dry-run'
+              ? String(r.label || '').includes('SAM.gov')
+              : r.profile === profile
+          ) || allRuns[0];
         const nowIso = new Date().toISOString();
         const compact = nowIso.replace(/[:.]/g, '-').slice(0, 19);
         const cloned = JSON.parse(JSON.stringify(baselineRun));
@@ -1792,7 +1798,9 @@
         cloned.created_at = nowIso;
         cloned.label =
           customLabel ||
-          (profile === 'rlvr-aligned'
+          (profile === 'sam-dry-run'
+            ? 'SAM.gov Full-Stack (10 Solicitations / 67 Attachments) — Dry-Run'
+            : profile === 'rlvr-aligned'
             ? 'Post-RLVR Proof-of-Truth LoRA v1.0'
             : profile === 'checkpoint-step-150'
             ? 'RLVR LoRA step 150 checkpoint'
@@ -1819,45 +1827,79 @@
 
       document.getElementById('run-sweep-btn').addEventListener('click', async () => {
         const btn = document.getElementById('run-sweep-btn');
+        const btnSpan = btn.querySelector('span');
+        const originalText = btnSpan ? btnSpan.textContent : 'Run verification sweep';
         const profile = document.getElementById('profile-select').value;
         const label = document.getElementById('run-label-input').value.trim();
+        const isLiveProfile = profile === 'live' || profile === 'sam-live';
 
         btn.disabled = true;
+        if (btnSpan) {
+          btnSpan.textContent = isLiveProfile
+            ? 'Running Beam 501B (0/40)...'
+            : 'Executing dry-run sweep...';
+        }
+
+        let pollTimer = null;
+        if (isLiveProfile) {
+          pollTimer = setInterval(async () => {
+            try {
+              const pRes = await fetch('/api/sweep-progress', { cache: 'no-store' });
+              if (!pRes.ok) return;
+              const prog = await pRes.json();
+              if (prog && prog.running && btnSpan) {
+                btnSpan.textContent = `Running Beam 501B (${prog.completed}/${prog.total})...`;
+              }
+            } catch (_) {}
+          }, 800);
+        }
+
         try {
           const res = await fetch('/api/runs', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ profile, label }),
           });
+          if (pollTimer) clearInterval(pollTimer);
           if (res.ok) {
             const data = await res.json();
             allRuns = data.runs;
             document.getElementById('run-label-input').value = '';
             selectRun(data.run.run_id);
+            if (btnSpan) btnSpan.textContent = originalText;
             btn.disabled = false;
             return;
           } else {
             const errData = await res.json().catch(() => ({}));
-            if (profile === 'live' && errData.error) {
-              alert('Live Beam API Sweep Error:\n' + errData.error);
-              btn.disabled = false;
-              return;
-            }
+            alert(
+              'Sweep Execution Error:\n' +
+                (errData.error || `Server returned HTTP ${res.status}`)
+            );
+            if (btnSpan) btnSpan.textContent = originalText;
+            btn.disabled = false;
+            return;
           }
-        } catch (_) {}
+        } catch (err) {
+          if (pollTimer) clearInterval(pollTimer);
+          if (window.location.protocol !== 'file:') {
+            alert(
+              'Sweep Execution Error:\n' +
+                (err && err.message ? err.message : 'Connection failed')
+            );
+            if (btnSpan) btnSpan.textContent = originalText;
+            btn.disabled = false;
+            return;
+          }
+        }
 
-        // Fallback for static file:// mode
+        // Fallback strictly for static file:// mode
         const newRun = buildClientSideRun(profile, label);
         saveLocalRun(newRun);
         allRuns.unshift(newRun);
         document.getElementById('run-label-input').value = '';
         selectRun(newRun.run_id);
+        if (btnSpan) btnSpan.textContent = originalText;
         btn.disabled = false;
-      });
-
-      document.addEventListener('click', () => {
-        const btn = document.getElementById('run-sweep-btn');
-        if (btn.disabled) btn.disabled = false;
       });
 
       document.getElementById('import-btn').addEventListener('click', () => {
