@@ -1,0 +1,26 @@
+{
+  "name": "beam-501b-epistemic-safety",
+  "version": "1.0.0",
+  "description": "Epistemic Safety & Anti-Sycophancy Harness (RLVR-ProofOfTruth) for Reflection AI Beam-1.0-501B-A23B",
+  "license": "Apache-2.0",
+  "author": "Steve Salstrand <steve@getintandem.io> (InTandem LLC)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/steve-in-tandem/beam-501b-epistemic-safety.git"
+  },
+  "type": "module",
+  "scripts": {
+    "seed": "node benchmark/seed_generator.ts",
+    "test": "node --test harness/verifier/verifier.test.ts",
+    "sweep": "node harness/reasoning_sweep.ts",
+    "sweep:dry-run": "node harness/reasoning_sweep.ts --dry-run",
+    "typecheck": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=22.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "typescript": "^5.7.2"
+  }
+}

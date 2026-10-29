@@ -1,0 +1,122 @@
+[
+  {
+    "case_id": "CASE-001-DFARS-7012-CLOUD",
+    "regulatory_framework": "DFARS",
+    "clause_reference": "DFARS 252.204-7012(b)(2)(ii)(D)",
+    "statutory_text": "DFARS 252.204-7012(b)(2)(ii)(D) Cloud Computing Security Requirements: If the Contractor intends to use an external cloud service provider to store, process, or transmit any covered defense information in performance of this contract, the Contractor shall require and ensure that the cloud service provider meets security requirements equivalent to those established by the Government for the Federal Risk and Authorization Management Program (FedRAMP) Moderate baseline (https://www.fedramp.gov/resources/documents/) and that the cloud service provider complies with requirements in paragraphs (c) through (g) of this clause for cyber incident reporting, malicious software, media preservation and protection, access to additional information and equipment necessary for forensic analysis, and cyber incident damage assessment.",
+    "statutory_sha256": "d4c9c1c93c6dc368a7782671165812b756de8ad41a08b58dce2f7216e7304e6e",
+    "target_span": {
+      "start_byte": 235,
+      "end_byte": 470,
+      "verbatim_quote": "the Contractor shall require and ensure that the cloud service provider meets security requirements equivalent to those established by the Government for the Federal Risk and Authorization Management Program (FedRAMP) Moderate baseline"
+    }
+  },
+  {
+    "case_id": "CASE-002-DFARS-7012-72HR-REPORTING",
+    "regulatory_framework": "DFARS",
+    "clause_reference": "DFARS 252.204-7012(c)(1)(ii) & (c)(3)",
+    "statutory_text": "DFARS 252.204-7012(c) Cyber incident reporting requirement: (1) When the Contractor discovers a cyber incident that affects a covered contractor information system or the covered defense information residing therein, or that affects the contractor’s ability to perform the requirements of the contract that are designated as operationally critical support and identified in the contract, the Contractor shall— (i) Conduct a review for evidence of compromise of covered defense information; and (ii) Rapidly report cyber incidents to DoD at https://dibnet.dod.mil within 72 hours of discovery of any cyber incident. (3) Medium assurance certificate requirement. In order to report cyber incidents in accordance with this clause, the Contractor or subcontractor shall have or acquire a DoD-approved medium assurance certificate to report cyber incidents.",
+    "statutory_sha256": "3b3810c675f9a084aa2144a41df3d7b4dfdbef2c10aa4411eb7f2e1e09cdba3c",
+    "target_span": {
+      "start_byte": 503,
+      "end_byte": 618,
+      "verbatim_quote": "Rapidly report cyber incidents to DoD at https://dibnet.dod.mil within 72 hours of discovery of any cyber incident."
+    }
+  },
+  {
+    "case_id": "CASE-003-CMMC-L2-FIPS-140-3",
+    "regulatory_framework": "CMMC_L2",
+    "clause_reference": "CMMC Level 2 SC.L2-3.13.11 (NIST SP 800-171 Rev 2 § 3.13.11)",
+    "statutory_text": "CMMC Level 2 Practice SC.L2-3.13.11 / NIST SP 800-171 Rev 2 Control 3.13.11: Employ FIPS-validated cryptography when used to protect the confidentiality of CUI. Assessment Objective SC.L2-3.13.11[a]: Cryptographic mechanisms used to protect the confidentiality of CUI during transmission and at rest employ cryptographic modules validated under the NIST Cryptographic Module Validation Program (CMVP) to Federal Information Processing Standards (FIPS) 140-2 or FIPS 140-3 with an active validation certificate. Unvalidated commercial implementations of standard algorithms (such as AES-256 or TLS 1.3 running in non-FIPS operating modes) are assessed as NOT MET.",
+    "statutory_sha256": "5e4190bd548dc2b5023eb33f5ce9e4342d1ae804dd0e3ad3c67f9685df4a5e9b",
+    "target_span": {
+      "start_byte": 200,
+      "end_byte": 510,
+      "verbatim_quote": "Cryptographic mechanisms used to protect the confidentiality of CUI during transmission and at rest employ cryptographic modules validated under the NIST Cryptographic Module Validation Program (CMVP) to Federal Information Processing Standards (FIPS) 140-2 or FIPS 140-3 with an active validation certificate."
+    }
+  },
+  {
+    "case_id": "CASE-004-NIST-800-171-SPRS-POAAM",
+    "regulatory_framework": "NIST_800_171",
+    "clause_reference": "DFARS 252.204-7019 & 252.204-7020 (NIST SP 800-171 DoD Assessment)",
+    "statutory_text": "DFARS 252.204-7019 Notice of NIST SP 800-171 DoD Assessment Requirements: (b) Requirement. In order to be considered for award, if the Offeror is required to implement NIST SP 800-171, the Offeror shall have a current assessment (i.e., not more than 3 years old unless a lesser time is specified in the solicitation) for each covered contractor information system that is relevant to the offer, contract, task order, or delivery order. (c) Procedures. Summary level scores for all assessments shall be posted in the Supplier Performance Risk System (SPRS), accompanied by a firm date by which all requirements are expected to be implemented (Plan of Action and Milestones completion date within 180 days of conditional certification under 32 CFR § 170.21).",
+    "statutory_sha256": "2bfd23ba958a40190fa029a9262042d7f6fe1a31f7e07966709d426ba2b5eb26",
+    "target_span": {
+      "start_byte": 91,
+      "end_byte": 363,
+      "verbatim_quote": "In order to be considered for award, if the Offeror is required to implement NIST SP 800-171, the Offeror shall have a current assessment (i.e., not more than 3 years old unless a lesser time is specified in the solicitation) for each covered contractor information system"
+    }
+  },
+  {
+    "case_id": "CASE-005-FAR-889-COVERED-TELECOM",
+    "regulatory_framework": "FAR",
+    "clause_reference": "FAR 52.204-24 & FAR 52.204-25 (NDAA FY2019 Section 889(a)(1)(B))",
+    "statutory_text": "FAR 52.204-25 Prohibition on Contracting for Certain Telecommunications and Video Surveillance Services or Equipment: (b)(2) Section 889(a)(1)(B) of the John S. McCain National Defense Authorization Act for Fiscal Year 2019 (Pub. L. 115-232) prohibits the head of an executive agency on or after August 13, 2020, from entering into a contract, or extending or renewing a contract, with an entity that uses any equipment, system, or service that uses covered telecommunications equipment or services as a substantial or essential component of any system, or as critical technology as part of any system, including video surveillance and telecommunications equipment produced by Hangzhou Hikvision Digital Technology Company, Dahua Technology Company, Huawei Technologies Company, or ZTE Corporation.",
+    "statutory_sha256": "495808b687767ff6dff99798c5220605b65f2043bc97e1bb8491833ffc419367",
+    "target_span": {
+      "start_byte": 242,
+      "end_byte": 552,
+      "verbatim_quote": "prohibits the head of an executive agency on or after August 13, 2020, from entering into a contract, or extending or renewing a contract, with an entity that uses any equipment, system, or service that uses covered telecommunications equipment or services as a substantial or essential component of any system"
+    }
+  },
+  {
+    "case_id": "CASE-006-CMMC-L2-MFA-PRIVILEGED",
+    "regulatory_framework": "CMMC_L2",
+    "clause_reference": "CMMC Level 2 IA.L2-3.5.3 (NIST SP 800-171 Rev 2 § 3.5.3)",
+    "statutory_text": "CMMC Level 2 Practice IA.L2-3.5.3 / NIST SP 800-171 Rev 2 Control 3.5.3: Use multifactor authentication for local and network access to privileged accounts and for network access to non-privileged accounts. Assessment Objective IA.L2-3.5.3[a] & [b]: Multifactor authentication (requiring two or more distinct authentication factors) is implemented for all local logons and network logons (RDP, SSH, console, and domain administration) to privileged accounts inside the CUI security boundary, without exception for internal LAN sessions.",
+    "statutory_sha256": "c9cd714a530250524234777a97cc9ba1c8e2411f23cf569af1bc86e5e88655ac",
+    "target_span": {
+      "start_byte": 250,
+      "end_byte": 536,
+      "verbatim_quote": "Multifactor authentication (requiring two or more distinct authentication factors) is implemented for all local logons and network logons (RDP, SSH, console, and domain administration) to privileged accounts inside the CUI security boundary, without exception for internal LAN sessions."
+    }
+  },
+  {
+    "case_id": "CASE-007-DFARS-7012-MEDIA-PRESERVATION",
+    "regulatory_framework": "DFARS",
+    "clause_reference": "DFARS 252.204-7012(e) Media Preservation and Protection",
+    "statutory_text": "DFARS 252.204-7012(e) Media preservation and protection: When a Contractor discovers a cyber incident has occurred, the Contractor shall preserve and protect images of all known affected information systems identified in paragraph (c)(1)(i) of this clause and all relevant monitoring/packet capture data for at least 90 days from the submission of the cyber incident report to allow DoD to request the media or decline interest.",
+    "statutory_sha256": "f7477b5d718c98baa9fcf01cf92182dc5d393e1b8f7ceaf7b96b5b0749a5437c",
+    "target_span": {
+      "start_byte": 116,
+      "end_byte": 373,
+      "verbatim_quote": "the Contractor shall preserve and protect images of all known affected information systems identified in paragraph (c)(1)(i) of this clause and all relevant monitoring/packet capture data for at least 90 days from the submission of the cyber incident report"
+    }
+  },
+  {
+    "case_id": "CASE-008-FAR-SAM-RESPONSIBILITY-TAX",
+    "regulatory_framework": "FAR",
+    "clause_reference": "FAR 52.204-7 & FAR 52.209-5(a)(1)(i)(D) Responsibility Matters",
+    "statutory_text": "FAR 52.204-7 System for Award Management: (b)(1) An Offeror is required to be registered in SAM when submitting an offer or quotation, and shall continue to be registered at all times during performance. FAR 52.209-5 Certification Regarding Responsibility Matters: The Offeror certifies whether it has, within a three-year period preceding this offer, been notified of any delinquent Federal taxes in an amount that exceeds $10,000 for which the liability remains unsatisfied and no payment agreement has been entered into with the taxing authority.",
+    "statutory_sha256": "4f33a57d532ac82464237b486eb8d2e967ce0b248f2181820fc993108c8a98d2",
+    "target_span": {
+      "start_byte": 49,
+      "end_byte": 203,
+      "verbatim_quote": "An Offeror is required to be registered in SAM when submitting an offer or quotation, and shall continue to be registered at all times during performance."
+    }
+  },
+  {
+    "case_id": "CASE-009-SECTION-LM-DISA-IL4-CLOUD",
+    "regulatory_framework": "SECTION_L_M",
+    "clause_reference": "RFP Section L.4.3.2 & Section M.2.1 (DISA Cloud Computing SRG Impact Level 4)",
+    "statutory_text": "Solicitation W56KGY-26-R-0042 Section L.4.3.2 & Section M.2.1 Mandatory Technical Gate (Go/No-Go): Offerors proposing a hosted Software-as-a-Service (SaaS) or Platform-as-a-Service (PaaS) logistics analytics environment for Controlled Unclassified Information (CUI) and Mission-Critical Naval Supply Data shall provide verifiable documentation in Volume II demonstrating an active Defense Information Systems Agency (DISA) Cloud Computing Security Requirements Guide (CC SRG) Impact Level 4 (IL4) Provisional Authorization (PA) and an underlying FedRAMP High Joint Authorization Board (JAB) or Agency ATO. Proposals lacking verifiable DISA IL4 PA evidence in Volume II shall be rated Technically Unacceptable (No-Go) without discussions.",
+    "statutory_sha256": "87764d06538e5bf8930b7c537211e91c2676959d71a0176b4e9b4d6aa873bc61",
+    "target_span": {
+      "start_byte": 305,
+      "end_byte": 605,
+      "verbatim_quote": "shall provide verifiable documentation in Volume II demonstrating an active Defense Information Systems Agency (DISA) Cloud Computing Security Requirements Guide (CC SRG) Impact Level 4 (IL4) Provisional Authorization (PA) and an underlying FedRAMP High Joint Authorization Board (JAB) or Agency ATO."
+    }
+  },
+  {
+    "case_id": "CASE-010-NIST-800-171-AUDIT-IMMUTABILITY",
+    "regulatory_framework": "NIST_800_171",
+    "clause_reference": "NIST SP 800-171 Rev 2 § 3.3.1 & § 3.3.8 (CMMC Level 2 AU.L2-3.3.1 / 3.3.8)",
+    "statutory_text": "NIST SP 800-171 Rev 2 Control 3.3.1 & Control 3.3.8 (Audit and Accountability): (3.3.1) Create and retain system audit logs and records to the extent needed to enable the monitoring, analysis, investigation, and reporting of unlawful or unauthorized system activity. (3.3.8) Protect audit information and audit logging tools from unauthorized access, modification, and deletion. Assessment Objective AU.L2-3.3.8[a]: Audit logs are offloaded to a centralized, access-controlled collector or write-once storage medium where privileged local system administrators on monitored endpoints cannot alter, clear, or overwrite audit records.",
+    "statutory_sha256": "ffa0cd6f76ceaa7e9de66f6af9d0815a606378379b09d42cdae1370e2a2d0808",
+    "target_span": {
+      "start_byte": 416,
+      "end_byte": 632,
+      "verbatim_quote": "Audit logs are offloaded to a centralized, access-controlled collector or write-once storage medium where privileged local system administrators on monitored endpoints cannot alter, clear, or overwrite audit records."
+    }
+  }
+]
