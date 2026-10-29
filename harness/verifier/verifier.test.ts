@@ -21,6 +21,7 @@ import { calculateSweepMetrics } from './metrics.ts';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const SEED_CASES_PATH = join(__dirname, '..', '..', 'benchmark', 'seed_cases.json');
+const SAM_CASES_PATH = join(__dirname, '..', '..', 'benchmark', 'sam_gov_cases.json');
 
 const SAMPLE_STATUTE =
   'DFARS 252.204-7012(b)(2)(ii)(D): If the Contractor intends to use an external cloud service provider to store, process, or transmit any covered defense information in performance of this contract, the Contractor shall require and ensure that the cloud service provider meets security requirements equivalent to those established by the Government for the Federal Risk and Authorization Management Program (FedRAMP) Moderate baseline.';
@@ -365,6 +366,49 @@ describe('Step 3: Golden Seed Dataset (benchmark/seed_cases.json) Integrity', ()
         spanReport.span_integrity_passed,
         true,
         `Span integrity failed on seed case ${tc.case_id}`
+      );
+      assert.equal(spanReport.hallucinated_spans_count, 0);
+    }
+  });
+
+  it('verifies all 10 full-stack SAM.gov multi-attachment test cases (benchmark/sam_gov_cases.json) pass byte-offset and SHA-256 verification', () => {
+    const raw = readFileSync(SAM_CASES_PATH, 'utf8');
+    const samCases = JSON.parse(raw) as AdversarialTestCase[];
+
+    assert.equal(samCases.length, 10, 'Expected 10 SAM.gov full-stack cases');
+
+    for (const tc of samCases) {
+      assert.equal(computeSha256(tc.statutory_text), tc.statutory_sha256);
+      assert.equal(
+        computeSha256(tc.vendor_evidence_text),
+        tc.vendor_evidence_sha256
+      );
+
+      const statuteSpan = tc.planted_deficiency.statute_target_span!;
+      const evidenceSpan = tc.planted_deficiency.evidence_target_span!;
+
+      const citations: CitationSpan[] = [
+        {
+          source_type: 'STATUTE',
+          sha256_hash: tc.statutory_sha256,
+          start_byte: statuteSpan.start_byte,
+          end_byte: statuteSpan.end_byte,
+          verbatim_quote: statuteSpan.verbatim_quote,
+        },
+        {
+          source_type: 'VENDOR_EVIDENCE',
+          sha256_hash: tc.vendor_evidence_sha256,
+          start_byte: evidenceSpan.start_byte,
+          end_byte: evidenceSpan.end_byte,
+          verbatim_quote: evidenceSpan.verbatim_quote,
+        },
+      ];
+
+      const spanReport = verifySpanIntegrity(citations, tc);
+      assert.equal(
+        spanReport.span_integrity_passed,
+        true,
+        `Span integrity failed on SAM.gov case ${tc.case_id}`
       );
       assert.equal(spanReport.hallucinated_spans_count, 0);
     }

@@ -1,5 +1,5 @@
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type {
@@ -20,12 +20,20 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const ROOT_DIR = join(__dirname, '..');
 const SEED_CASES_PATH = join(ROOT_DIR, 'benchmark', 'seed_cases.json');
+const SAM_CASES_PATH = join(ROOT_DIR, 'benchmark', 'sam_gov_cases.json');
 const DASHBOARD_HTML_PATH = join(__dirname, 'dashboard.html');
 const DASHBOARD_DATA_JS_PATH = join(__dirname, 'dashboard_data.js');
 
 export function loadSeedCases(): AdversarialTestCase[] {
   const raw = readFileSync(SEED_CASES_PATH, 'utf8');
-  return JSON.parse(raw) as AdversarialTestCase[];
+  const seedCases = JSON.parse(raw) as AdversarialTestCase[];
+  if (existsSync(SAM_CASES_PATH)) {
+    const samCases = JSON.parse(
+      readFileSync(SAM_CASES_PATH, 'utf8')
+    ) as AdversarialTestCase[];
+    return [...seedCases, ...samCases];
+  }
+  return seedCases;
 }
 
 /**
@@ -113,18 +121,38 @@ export async function startDashboardServer(port = 4173): Promise<void> {
       if (req.method === 'POST' && url.pathname === '/api/runs') {
         const rawBody = await readRequestBody(req);
         const body = (rawBody ? JSON.parse(rawBody) : {}) as {
-          profile?: SimulationProfile | 'live';
+          profile?:
+            | SimulationProfile
+            | 'live'
+            | 'sam-dry-run'
+            | 'sam-live';
           label?: string;
         };
 
-        const isLive = body.profile === 'live';
+        const isSam =
+          body.profile === 'sam-dry-run' || body.profile === 'sam-live';
+        const isLive =
+          body.profile === 'live' || body.profile === 'sam-live';
         const profile: SimulationProfile =
-          body.profile && body.profile !== 'live' ? body.profile : 'baseline';
-        const customLabel = body.label?.trim() || undefined;
+          body.profile &&
+          body.profile !== 'live' &&
+          body.profile !== 'sam-dry-run' &&
+          body.profile !== 'sam-live'
+            ? body.profile
+            : 'baseline';
+
+        const defaultSamLabel = isSam
+          ? `SAM.gov Full-Stack (10 Solicitations / 67 Attachments) — ${
+              isLive ? 'Live Beam 501B' : 'Dry-Run'
+            }`
+          : undefined;
+
+        const customLabel = body.label?.trim() || defaultSamLabel;
 
         const { run } = await runReasoningSweep({
           dryRun: !isLive,
           simulationProfile: profile,
+          seedCasesPath: isSam ? SAM_CASES_PATH : SEED_CASES_PATH,
           label: customLabel,
           saveToHistory: true,
         });

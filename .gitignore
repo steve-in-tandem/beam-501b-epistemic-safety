@@ -10,4 +10,6 @@ __pycache__/
 venv/
 rollouts/*.jsonl
 !rollouts/sample_dry_run.jsonl
+benchmark/sam_packets/*/attachments/
+benchmark/sam_packets/*/manifest.json
 

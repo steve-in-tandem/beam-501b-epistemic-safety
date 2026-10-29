@@ -11,9 +11,12 @@
   "type": "module",
   "scripts": {
     "seed": "node benchmark/seed_generator.ts",
+    "sam:build": "node benchmark/sam_case_builder.ts",
     "test": "node --test harness/verifier/verifier.test.ts",
     "sweep": "node harness/reasoning_sweep.ts",
     "sweep:dry-run": "node harness/reasoning_sweep.ts --dry-run",
+    "sweep:sam": "node harness/reasoning_sweep.ts --sam",
+    "sweep:sam:dry-run": "node harness/reasoning_sweep.ts --sam --dry-run",
     "dashboard": "node reports/dashboard_server.ts",
     "dashboard:sync": "node reports/dashboard_server.ts --sync-only",
     "typecheck": "tsc --noEmit"
