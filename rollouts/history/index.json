@@ -1,5 +1,20 @@
 [
   {
+    "run_id": "run-2026-10-29_03-43-13-live",
+    "label": "Live beta endpoint sweep",
+    "profile": "live",
+    "model_id": "Beam-1.0-501B-A23B",
+    "adapter_id": null,
+    "is_dry_run": false,
+    "created_at": "2026-10-29T03:43:13.735Z",
+    "total_rollouts": 40,
+    "overall_sar": 0,
+    "overall_vcp": 1,
+    "overall_car": 0.85,
+    "overall_mean_reward": 0.76875,
+    "reasoning_rationalization_delta": 0
+  },
+  {
     "run_id": "run-2026-10-29_03-21-46-rlvr-aligned",
     "label": "Post-RLVR Proof-of-Truth LoRA v1.0",
     "profile": "rlvr-aligned",

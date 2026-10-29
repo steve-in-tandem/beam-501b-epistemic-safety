@@ -107,7 +107,7 @@ npm run dashboard           # Launch interactive Proof-of-Truth Report Dashboard
 1. Copy `.env.example` to `.env` in the repository root and add your API key:
    ```env
    BEAM_API_KEY=your_beam_api_key_here
-   BEAM_BASE_URL=https://api.reflection.ai/v1
+   BEAM_BASE_URL=https://api.reflection.ai/openai/v1
    BEAM_MODEL_ID=Beam-1.0-501B-A23B
    ```
 2. Run a live multi-tier reasoning sweep via CLI or directly inside the Report Dashboard:

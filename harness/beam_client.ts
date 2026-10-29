@@ -66,10 +66,10 @@ export interface BeamRolloutResponse {
 }
 
 const REASONING_BUDGET_TOKENS: Record<ReasoningEffort, number> = {
-  low: 512,
-  medium: 1536,
-  high: 4096,
-  max: 8192,
+  low: 8192,
+  medium: 12288,
+  high: 16384,
+  max: 16384,
 };
 
 /**
@@ -155,7 +155,7 @@ export class BeamRolloutClient {
     this.baseUrl = (
       config.baseUrl ??
       process.env.BEAM_BASE_URL ??
-      'https://api.reflection.ai/v1'
+      'https://api.reflection.ai/openai/v1'
     ).replace(/\/+$/, '');
     this.modelId = config.modelId ?? 'Beam-1.0-501B-A23B';
     this.timeoutMs = config.timeoutMs ?? 120_000;
