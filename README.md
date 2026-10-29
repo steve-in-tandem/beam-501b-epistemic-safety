@@ -8,6 +8,8 @@ An open-source evaluation benchmark, deterministic citation/entailment verificat
 
 Developed and maintained by **Steve Salstrand** ([InTandem LLC](https://getintandem.io)).
 
+![Beam-501B Proof-of-Truth Verification Report Dashboard](reports/dashboard-preview.png)
+
 ---
 
 ## 1. Motivation & Core Safety Problem
@@ -91,7 +93,32 @@ beam-501b-epistemic-safety/
 
 ---
 
-## 5. 4-Week Execution Roadmap
+## 5. Quick Start & Live Beam API Setup
+
+### A. Zero-Cost Local Verification & Dashboard (`--dry-run`)
+```bash
+npm install
+npm test                    # Run deterministic byte-offset & SHA-256 verifier unit tests
+npm run sweep:dry-run       # Run 4-tier reasoning_effort sweep in offline simulation mode
+npm run dashboard           # Launch interactive Proof-of-Truth Report Dashboard at http://localhost:4173
+```
+
+### B. Running Against the Live Reflection Beam 501B API
+1. Copy `.env.example` to `.env` in the repository root and add your API key:
+   ```env
+   BEAM_API_KEY=your_beam_api_key_here
+   BEAM_BASE_URL=https://api.reflection.ai/v1
+   BEAM_MODEL_ID=Beam-1.0-501B-A23B
+   ```
+2. Run a live multi-tier reasoning sweep via CLI or directly inside the Report Dashboard:
+   ```bash
+   npm run sweep
+   ```
+   Every live sweep automatically logs traces to `rollouts/live_rollouts.jsonl` and stores a permanent historical snapshot in `rollouts/history/` for side-by-side comparison in the dashboard.
+
+---
+
+## 6. 4-Week Execution Roadmap
 
 - [x] **Milestone 0:** Production statutory ingestion pipeline & initial Beam 501B beta baseline testing.
 - [ ] **Milestone 1 (Week 1):** Release 500-case Adversarial Compliance & Anti-Sycophancy dataset across FAR/DFARS/CMMC controls; complete multi-tier `reasoning_effort` baseline sweeps.

@@ -660,6 +660,7 @@
           <option value="rlvr-aligned">Post-RLVR Proof-of-Truth LoRA v1.0</option>
           <option value="checkpoint-step-150">RLVR LoRA step 150 checkpoint</option>
           <option value="baseline">Unaligned baseline (Beam-1.0-501B)</option>
+          <option value="live">Live Beam 501B API (BEAM_API_KEY)</option>
         </select>
         <input
           id="run-label-input"
@@ -1323,7 +1324,15 @@
             allRuns = data.runs;
             document.getElementById('run-label-input').value = '';
             selectRun(data.run.run_id);
+            btn.disabled = false;
             return;
+          } else {
+            const errData = await res.json().catch(() => ({}));
+            if (profile === 'live' && errData.error) {
+              alert('Live Beam API Sweep Error:\n' + errData.error);
+              btn.disabled = false;
+              return;
+            }
           }
         } catch (_) {}
 
@@ -1422,3 +1431,4 @@
   </script>
 </body>
 </html>
+

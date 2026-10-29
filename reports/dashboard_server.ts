@@ -113,15 +113,17 @@ export async function startDashboardServer(port = 4173): Promise<void> {
       if (req.method === 'POST' && url.pathname === '/api/runs') {
         const rawBody = await readRequestBody(req);
         const body = (rawBody ? JSON.parse(rawBody) : {}) as {
-          profile?: SimulationProfile;
+          profile?: SimulationProfile | 'live';
           label?: string;
         };
 
-        const profile: SimulationProfile = body.profile ?? 'baseline';
+        const isLive = body.profile === 'live';
+        const profile: SimulationProfile =
+          body.profile && body.profile !== 'live' ? body.profile : 'baseline';
         const customLabel = body.label?.trim() || undefined;
 
         const { run } = await runReasoningSweep({
-          dryRun: true,
+          dryRun: !isLive,
           simulationProfile: profile,
           label: customLabel,
           saveToHistory: true,
@@ -253,3 +255,4 @@ if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
     startDashboardServer(port);
   }
 }
+
