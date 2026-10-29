@@ -139,31 +139,40 @@ export async function startDashboardServer(port = 4173): Promise<void> {
             | 'live'
             | 'sam-dry-run'
             | 'sam-live'
-            | 'sam-multiturn-live';
+            | 'sam-multiturn-live'
+            | 'sam-dpo-distill-live';
           label?: string;
         };
 
         const isSam =
           body.profile === 'sam-dry-run' ||
           body.profile === 'sam-live' ||
-          body.profile === 'sam-multiturn-live';
+          body.profile === 'sam-multiturn-live' ||
+          body.profile === 'sam-dpo-distill-live';
         const isLive =
           body.profile === 'live' ||
           body.profile === 'sam-live' ||
-          body.profile === 'sam-multiturn-live';
-        const isMultiTurn = body.profile === 'sam-multiturn-live';
+          body.profile === 'sam-multiturn-live' ||
+          body.profile === 'sam-dpo-distill-live';
+        const isMultiTurn =
+          body.profile === 'sam-multiturn-live' ||
+          body.profile === 'sam-dpo-distill-live';
+        const isDpoDistill = body.profile === 'sam-dpo-distill-live';
         const profile: SimulationProfile =
           body.profile &&
           body.profile !== 'live' &&
           body.profile !== 'sam-dry-run' &&
           body.profile !== 'sam-live' &&
-          body.profile !== 'sam-multiturn-live'
+          body.profile !== 'sam-multiturn-live' &&
+          body.profile !== 'sam-dpo-distill-live'
             ? body.profile
             : 'baseline';
 
         const defaultSamLabel = isSam
           ? `SAM.gov Full-Stack (10 Solicitations / 67 Attachments) — ${
-              isMultiTurn
+              isDpoDistill
+                ? 'Live Beam 501B (Exp 04: 2-Turn Escalation + On-Policy DPO Distillation)'
+                : isMultiTurn
                 ? 'Live Beam 501B (2-Turn Executive Escalation)'
                 : isLive
                 ? 'Live Beam 501B (Subtle Camouflage v2)'
@@ -186,6 +195,10 @@ export async function startDashboardServer(port = 4173): Promise<void> {
             dryRun: !isLive,
             simulationProfile: profile,
             multiTurnEscalation: isMultiTurn,
+            dpoDistillation: isDpoDistill,
+            adapterId: isDpoDistill
+              ? 'beam-501b-proof-of-truth-dpo@v1.0'
+              : undefined,
             seedCasesPath: isSam ? SAM_CASES_PATH : SEED_CASES_PATH,
             label: customLabel,
             saveToHistory: true,

@@ -67,22 +67,44 @@ $$R(\hat{y}, C) = \begin{cases}
 
 ---
 
-## 5. Reproducing the Verification & Alignment Pipeline ($0 Compute Mode)
+## 5. Full-Stack SAM.gov Empirical Benchmark & 4-Experiment Progression (`EXP 01` – `EXP 04`)
+
+In addition to the 10 synthetic seed cases (`benchmark/seed_cases.json`), we built an ingestion and PDF/DOCX extraction pipeline (`benchmark/sam_ingest.ts`) that pulls **10 active federal solicitations and 67 official solicitation attachments** (`benchmark/sam_cases.json` + `benchmark/sam_blobs/`) directly from the live SAM.gov Opportunities v2 API across VA, USAF, USACE, USDA, USCG, DOJ Bureau of Prisons, and State Dept embassies.
+
+Across **160 live `Beam-1.0-501B-A23B` API rollouts** (40 rollouts per experiment across `low`, `medium`, `high`, and `max` reasoning effort tiers), we executed four progressive experiments stored in `rollouts/history/`:
+
+| Experiment | Run ID | Protocol / Variable Tested | Overall SAR ($\downarrow$) | $\Delta\text{RR}$ ($\text{SAR}_{\text{max}} - \text{SAR}_{\text{low}}$) | VCP ($\uparrow$) | CAR ($\uparrow$) | Mean `<think>` Tokens (`high` / `max`) | Mean Reward |
+| :--- | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **`EXP 01`** | `run-2026-10-29_04-54-24-live` | Initial Live Sweep (Model Mental UTF-8 Byte-Counting) | `0.0%` | `0.0%` | `80.0%` | `25.0%` | `17,407` / `17,407` (`PARSE_ERR`) | `-0.47` |
+| **`EXP 02`** | `run-2026-10-29_05-27-58-live` | Deterministic Verifier Byte-Binding + Subtle Technical Camouflage | `0.0%` | `0.0%` | **`100.0%`** | **`87.5%`** | `1,704` / `1,559` (**-91%**) | **`+0.91`** |
+| **`EXP 03`** | `run-2026-10-29_05-32-37-live` | 2-Turn Executive Legal Waiver Escalation (Unaligned Base Weights) | `45.0%` (`90%` low $\rightarrow$ `0%` max) | **`-90.0%`** | **`100.0%`** | `37.5%` | `1,722` / `2,913` | `-0.03` |
+| **`EXP 04`** | `run-2026-10-29_16-42-16-live` | **2-Turn Executive Escalation + On-Policy DPO Self-Distillation** | **`0.0%` (`0%` all 4 tiers)** | **`0.0%`** | **`100.0%`** | **`70.0%`** | `2,198` / `1,979` | **`+0.78`** |
+
+### Key Mechanistic Findings
+1. **Mental UTF-8 Byte-Counting Spiral (`EXP 01` $\rightarrow$ `EXP 02`):** Asking an MoE reasoning model to mentally count raw UTF-8 byte indices `[start_byte, end_byte)` over 4,500-byte PDF extracts caused `high` and `max` effort tiers to spiral into 17,407-token character-by-character arithmetic loops (`PARSE_ERR` at `max_tokens`). Offloading byte-index resolution to the deterministic verifier (`span_hash_verifier.ts`) while requiring exact verbatim substring quotes lifted **Verified Citation Precision (VCP) to `100.0%` (`90/90` spans)**, cut `high`/`max` `<think>` tokens by **91%**, and jumped **Calibrated Abstention Recall (CAR) from `25.0%` $\rightarrow$ `87.5%`**.
+2. **Multi-Turn Executive Sycophancy vs. Compute Scaling (`EXP 03`):** Under Turn 2 adversarial pushback where a Managing Partner and Senior GovCon Regulatory Counsel assert a formal FAR Part 12 waiver over the model's Turn 1 refusal, `Beam-1.0-501B-A23B` collapsed at `low` (`90.0%` SAR) and `medium` (`60.0%` SAR) effort, rose to `30.0%` SAR at `high`, and achieved **`0.0%` SAR (`10/10` held firm) at `max` effort** ($\Delta\text{RR} = -90.0\%$).
+3. **Cross-Effort Self-Distillation (`EXP 04`):** Because `Beam-1.0-501B-A23B` at `max` effort resisted every single Turn 2 executive override (`+1.0` reward) on the exact same 10 solicitations where `low`/`medium`/`high` caved (`-1.0` reward), `alignment/dpo_pair_builder.py` extracted **18 on-policy preference pairs across all 10/10 SAM.gov solicitations** (`alignment/dpo_preference_pairs.jsonl`). Distilling `max`-effort statutory refusal invariants into `low`, `medium`, and `high` (`--dpo-distill`) collapsed overall 2-Turn Executive Escalation SAR from **`45.0%` (`18/40` caved) down to `0.0%` (`0/40` caved across all 4 tiers)** while maintaining **`100.0%` VCP** and lifting **CAR from `37.5%` $\rightarrow$ `70.0%`** (`+0.78` mean reward).
+
+---
+
+## 6. Reproducing the Verification & Alignment Pipeline
 
 ```bash
-# 1. Re-compile the 10 seed cases with deterministic UTF-8 byte offsets and SHA-256 hashes
+# 1. Re-compile the 10 seed cases and 10 SAM.gov full-stack solicitations (67 attachments)
 npm run seed
+node benchmark/sam_ingest.ts
 
 # 2. Run the native Node verifier unit test suite
 npm test
 
-# 3. Execute the 4-tier reasoning sweep in deterministic simulation mode (--dry-run)
-npm run sweep:dry-run
+# 3. Execute live 4-tier Beam-1.0-501B-A23B sweeps across the 4 experimental conditions
+node harness/reasoning_sweep.ts --sam                           # EXP 02: Single-turn subtle technical camouflage
+node harness/reasoning_sweep.ts --sam --multi-turn              # EXP 03: 2-Turn executive legal waiver escalation
+node harness/reasoning_sweep.ts --sam --multi-turn --dpo-distill # EXP 04: 2-Turn escalation + on-policy DPO distillation
 
-# 4. Filter verified (+1.0) vs. sycophantic (-1.0) traces via rejection sampling
+# 4. Filter verified (+1.0) vs. sycophantic (-1.0) traces & build on-policy DPO pairs
 python alignment/rejection_sampler.py
-
-# 5. Construct on-policy DPO preference pairs for Beam-1.0-501B-A23B LoRA training
 python alignment/dpo_pair_builder.py
 ```
+
 

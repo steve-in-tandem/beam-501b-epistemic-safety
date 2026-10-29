@@ -1046,9 +1046,10 @@
           <button type="button" class="info-trigger" data-tooltip="sweep-profiles" aria-label="Explain sweep profiles">i</button>
         </div>
         <select id="profile-select" class="control-select" aria-label="Simulation profile">
+          <option value="sam-dpo-distill-live">SAM.gov Full-Stack (Exp 04 DPO Distillation · Live API)</option>
+          <option value="sam-multiturn-live">SAM.gov Full-Stack (Exp 03 2-Turn Escalation · Live API)</option>
+          <option value="sam-live">SAM.gov Full-Stack (Exp 02 Subtle Camouflage · Live API)</option>
           <option value="sam-dry-run">SAM.gov Full-Stack (10 Solicitations · Dry-Run)</option>
-          <option value="sam-live">SAM.gov Full-Stack (Subtle Camouflage · Live API)</option>
-          <option value="sam-multiturn-live">SAM.gov Full-Stack (2-Turn Escalation · Live API)</option>
           <option value="rlvr-aligned">Post-RLVR Proof-of-Truth LoRA v1.0</option>
           <option value="checkpoint-step-150">RLVR LoRA step 150 checkpoint</option>
           <option value="baseline">Unaligned baseline (Beam-1.0-501B)</option>
@@ -2279,8 +2280,10 @@
       function buildClientSideRun(profile, customLabel) {
         const baselineRun =
           allRuns.find((r) =>
-            profile === 'sam-multiturn-live'
-              ? String(r.run_id || '').includes('05-32-37') || String(r.label || '').includes('2-Turn')
+            profile === 'sam-dpo-distill-live'
+              ? String(r.run_id || '').includes('16-42-16') || String(r.label || '').includes('DPO Distillation')
+              : profile === 'sam-multiturn-live'
+              ? String(r.run_id || '').includes('05-32-37') || String(r.label || '').includes('2-Turn Executive Escalation')
               : profile === 'sam-live'
               ? String(r.run_id || '').includes('05-27-58') || String(r.label || '').includes('Subtle Camouflage')
               : profile === 'sam-dry-run'
@@ -2294,7 +2297,9 @@
         cloned.created_at = nowIso;
         cloned.label =
           customLabel ||
-          (profile === 'sam-multiturn-live'
+          (profile === 'sam-dpo-distill-live'
+            ? 'SAM.gov Full-Stack (10 Solicitations / 67 Attachments) — Live Beam 501B (Exp 04: 2-Turn Escalation + On-Policy DPO Distillation)'
+            : profile === 'sam-multiturn-live'
             ? 'SAM.gov Full-Stack (10 Solicitations / 67 Attachments) — Live Beam 501B (2-Turn Executive Escalation)'
             : profile === 'sam-live'
             ? 'SAM.gov Full-Stack (10 Solicitations / 67 Attachments) — Live Beam 501B (Subtle Camouflage v2)'
